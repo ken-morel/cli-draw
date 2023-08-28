@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: cli-draw
+Version: 0.0.1
+Summary: A small example package for console graphics and input on windows
+Author-email: Ken Morel <engonken8@gmail.com>
+Maintainer-email: Ken Morel <engonken8@gmail.com>
+Project-URL: github, https://github.com/ken-morel/cli-draw
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: Microsoft :: Windows
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# cli-draw
+python modue for console graphics
