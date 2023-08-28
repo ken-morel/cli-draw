@@ -3,7 +3,6 @@ HEIGHT=  54
 WIDTH = 200
 HEIGHT = 75
 import colorama, numpy, pyautogui
-from pygame import draw, Surface, PixelArray
 import time, asyncio, sys, msvcrt
 from PIL import Image
 """  xe0H
