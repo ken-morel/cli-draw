@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0", "Pillow>=5.0.0", "colorama>=0.4.6", "numpy>=1.0.0", "pyautogui>=0.9.0"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "cli-draw"
+version = "0.0.1"
+authors = [
+  { name="Ken Morel", email="engonken8@gmail.com" },
+]
+maintainers = [
+  { name="Ken Morel", email="engonken8@gmail.com" },
+]
+description = "A small example package for console graphics and input on windows"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+]
+[project.urls]
+"github" = "https://github.com/ken-morel/cli-draw"
