@@ -9,44 +9,43 @@ class display():
 	shapes:list = []
 	texts:list = []
 	_texts:list = texts.copy()
+	_chrdown = "\u2584"
+	_chrup = "\u2580"
 	def __init__(self, width=10, height=10, border_width=1, border_color="white", clear_color="black"):
 		self.border_width, self.border_color = border_width, border_color
 		self.width, self.height = width, height
-		self.pixels = numpy.array([[border_color for y in range(height+border_width*2)] for x in range(width+border_width*2)], dtype='<U7')
-		self.pixels[border_width:-border_width, border_width:-border_width] = clear_color
-		self._pixels = self.pixels.copy()
+		self.data = numpy.array([[(border_color, border_color, "\u2580") for y in range(height+border_width*2)] for x in range(width+border_width*2)], dtype='<U7')
+		self.clear()
+		self._data = self.data.copy()
 		self.clear_color = clear_color
 		colorama.init(autoreset=True)
 		self.back_to_top()
 	def back_to_top(self):
 		print(colorama.Cursor.POS(0, 0), end="")
 	def get_pixels(self):
-		return self.pixels[
-			self.border_width:-self.border_width,
-			self.border_width:-self.border_width
-		]
+		pixels = self.data[x-1+self.border_width:-(x-1+self.border_width), ((y-1+self.border_width)//2):-((y-1+self.border_width)//2), 0:2]
+		return np.array([row.flatten() for row in pixels])
 	def set_pixels(self, data):
 		assert len(data) == self.width, f"pixel array width {len(data)} unmatching screen width {self.width}"
 		assert len(data[0]) == self.height, f"pixel array height {len(data[0])}(that of first row) unmatching screen height {self.height}"
-		self.pixels[
-			self.border_width:-self.border_width,
-			self.border_width:-self.border_width
-		] = data
+		for x, col in enumerate(data):
+			for y, pix in enumerate(col):
+				self.set(x, y, pix)
 	def set(self, x, y, val):
 		"""def set(self, x, y, val):
 		set a pixel with a 1-BASED index
 		"""
 		assert 0 < x <= self.width and 0 < y <= self.height, f"position {(x, y)} x out of screen coords (0, 0) to {(self.width, self.height)}"
-		self.pixels[x-1+self.border_width][y-1+self.border_width] = val
+		self.data[x-1+self.border_width, (y-1+self.border_width)//2, (y-1)%2] = val
 	dot = pixel = set
 	def get(self, x, y):
 		"""def get(self, x, y):
 		get a pixel (using a 1-BASED index)
 		"""
 		assert 0 < x <= self.width and 0 < y <= self.height, f"position {(x, y)} x out of screen coords (0, 0) to {(self.width, self.height)}"
-		return self.pixels[x-1+self.border_width][y-1+self.border_width]
+		return self.data[x-1+self.border_width, (y-1+self.border_width)//2, (y-1)%2]
 	def clear(self, color=None):
-		self.pixels[self.border_width:-self.border_width,self.border_width:-self.border_width] = color or self.clear_color
+		self.data[x-1+self.border_width:-(x-1+self.border_width), ((y-1+self.border_width)//2):-((y-1+self.border_width)//2), 0:2] = val
 	def draw_shapes(self):
 		[shape.draw(self) for shape in self.shapes]
 	def draw_text(self):
@@ -88,6 +87,11 @@ class display():
 				y0 += ystep
 				err += dx
 			x0 += 1
+	def text(self, x:int, y:int, text:str, fg:str|tuple[int]|None=None, bg:str|tuple[int]|None=None):
+		for idx, ch in enumerate(text):
+			assert 0 < x+idx <= self.width and 0 < y <= self.height, f"position {(x+idx, y)}(plus character '{ch}' offset) x out of screen coords (0, 0) to {(self.width, self.height)}"
+			cfg, cbg, cchr = self.data[x+idx-1+self.border_width, y-1+self.border_width]
+			self.data[x+idx-1+self.border_width, y-1+self.border_width] = [cfg or fg, cbg or bg, ch]
 	def mp_text(self, font, message, column=0, row=32, color="white"):
 		'''
 		Write `text` on `display` starting on `row` stating in `column` using
@@ -135,11 +139,17 @@ class display():
 					penup = False
 
 				pos_x += width
+	def get_bg_from_str(self, bg):
+		return getattr(colorama.Back, bg.upper())
+	def get_fg_from_str(self, fg):
+		return getattr(colorama.Fore, fg.upper())
+	def _write_pix(self, x, y, fg, bg, ch):
+		print(colorama.Cursor.POS(x, y)+self.get_fg_from_str(fg)+self.get_bg_from_str(bg)+ch, end="")
 	def _draw_to_cli(self):
-		for ix, x in enumerate(self.pixels):
+		for ix, x in enumerate(self.data):
 			for iy, y in enumerate(x):
-				if self._pixels[ix][iy] != y:
-					print(colorama.Cursor.POS(ix, iy)+self.get_obj(y)+" ")
+				if self._data[ix, iy] != y:
+					self._write_pix(ix, iy, *y)
 
 
 class draw():
